@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel Quest – Belajar MS Excel Seru!</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1D6F42;
+    --green-light: #21A156;
+    --green-pale: #E8F5EE;
+    --blue: #185ABD;
+    --blue-light: #2E86DE;
+    --blue-pale: #EAF2FF;
+    --yellow: #FFC300;
+    --yellow-pale: #FFF8DC;
+    --red: #E74C3C;
+    --red-pale: #FDECEA;
+    --orange: #F39C12;
+    --purple: #8E44AD;
+    --dark: #1A1A2E;
+    --dark2: #16213E;
+    --gray: #6C7A89;
+    --gray-light: #F4F6F8;
+    --white: #FFFFFF;
+    --shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --shadow-card: 0 4px 16px rgba(0,0,0,0.08);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #0F3460 0%, #16213E 50%, #0D1B2A 100%);
+    min-height: 100vh;
+    color: var(--dark);
+    overflow-x: hidden;
+  }
+
+  /* ─── FLOATING PARTICLES ─── */
+  .particles {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .particle {
+    position: absolute; border-radius: 50%;
+    animation: float linear infinite;
+    opacity: 0.15;
+  }
+  @keyframes float {
+    0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.15; }
+    90% { opacity: 0.15; }
+    100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: block; }
+
+  /* ─── START SCREEN ─── */
+  #startScreen {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; text-align: center;
+  }
+  #startScreen.active { display: flex; }
+
+  .logo-badge {
+    background: linear-gradient(135deg, #21A156, #1D6F42);
+    border-radius: 24px; padding: 20px 28px;
+    display: inline-flex; align-items: center; gap: 14px;
+    box-shadow: 0 8px 32px rgba(29,111,66,0.5), 0 0 60px rgba(33,161,86,0.2);
+    margin-bottom: 24px;
+    animation: logoFloat 3s ease-in-out infinite;
+  }
+  @keyframes logoFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .logo-icon {
+    width: 64px; height: 64px; background: white;
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+  }
+  .logo-text { text-align: left; }
+  .logo-text h1 { font-size: 28px; font-weight: 900; color: white; line-height: 1.1; }
+  .logo-text p { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+
+  .spreadsheet-preview {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 16px; margin: 20px 0;
+    backdrop-filter: blur(10px);
+    max-width: 420px; width: 100%;
+    animation: fadeIn 0.6s ease;
+  }
+  .sp-header {
+    display: flex; gap: 4px; margin-bottom: 6px;
+  }
+  .sp-cell-head {
+    background: rgba(29,111,66,0.6); color: white;
+    font-size: 11px; font-weight: 700;
+    padding: 4px 8px; border-radius: 4px; text-align: center;
+    min-width: 60px;
+  }
+  .sp-row { display: flex; gap: 4px; margin-bottom: 4px; }
+  .sp-cell-num {
+    background: rgba(29,111,66,0.3); color: rgba(255,255,255,0.7);
+    font-size: 10px; font-weight: 700;
+    padding: 4px 6px; border-radius: 4px; min-width: 24px; text-align: center;
+  }
+  .sp-cell {
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9);
+    font-size: 11px; padding: 4px 8px; border-radius: 4px; min-width: 60px;
+    font-family: 'Space Grotesk', monospace;
+  }
+  .sp-cell.formula { color: #4FC3F7; }
+  .sp-cell.result { color: #A5D6A7; }
+
+  .start-title {
+    font-size: clamp(28px, 6vw, 48px);
+    font-weight: 900; color: white;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    line-height: 1.1; margin-bottom: 12px;
+  }
+  .start-subtitle {
+    font-size: 16px; color: rgba(255,255,255,0.7); font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .bab-tags {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px;
+  }
+  .bab-tag {
+    background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; user-select: none;
+  }
+  .bab-tag:hover {
+    background: rgba(255,255,255,0.22); color: white;
+    border-color: rgba(255,255,255,0.5);
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  .bab-tag:active { transform: scale(0.97); }
+
+  /* ─── BAB DETAIL MODAL ─── */
+  .bab-modal-box {
+    background: #0F2A1E; border-radius: 24px;
+    max-width: 660px; width: 100%; max-height: 88vh;
+    overflow-y: auto; padding: 0;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    animation: modalIn 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .bab-modal-header {
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    position: sticky; top: 0; z-index: 2;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 12px;
+  }
+  .bab-modal-header h2 { font-size: 20px; font-weight: 900; color: white; line-height: 1.3; }
+  .bab-modal-header p { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 4px; font-weight: 600; }
+  .bab-close-btn {
+    background: rgba(255,255,255,0.1); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 50%; font-size: 18px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s; font-family: inherit;
+  }
+  .bab-close-btn:hover { background: rgba(255,255,255,0.22); }
+  .bab-modal-body { padding: 20px 28px 28px; }
+  .bab-section { margin-bottom: 20px; }
+  .bab-section-title {
+    font-size: 11px; font-weight: 900; color: rgba(255,255,255,0.4);
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;
+  }
+  .bab-point {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 14px;
+    margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.06);
+  }
+  .bab-point-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .bab-point-text { font-size: 13px; color: rgba(255,255,255,0.85); font-weight: 600; line-height: 1.5; }
+  .bab-point-text strong { color: white; }
+  .bab-formula-row {
+    background: rgba(0,0,0,0.35); border-radius: 10px; padding: 10px 14px;
+    margin-bottom: 7px; display: flex; align-items: center; gap: 10px;
+    border-left: 3px solid #21A156;
+  }
+  .bab-formula-row .formula { font-family: 'Space Grotesk', monospace; font-size: 13px; color: #4FC3F7; font-weight: 700; flex-shrink: 0; }
+  .bab-formula-row .fdesc { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 600; }
+  .bab-error-row {
+    background: rgba(0,0,0,0.35); border-radius: 10px; padding: 10px 14px;
+    margin-bottom: 7px; display: flex; align-items: center; gap: 10px;
+    border-left: 3px solid #E74C3C;
+  }
+  .bab-error-row .err-code { font-family: 'Space Grotesk', monospace; font-size: 13px; color: #FF7675; font-weight: 700; flex-shrink: 0; min-width: 80px; }
+  .bab-error-row .err-desc { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 600; }
+  .bab-tip {
+    background: rgba(255,195,0,0.08); border: 1px solid rgba(255,195,0,0.25);
+    border-radius: 12px; padding: 12px 14px; margin-top: 4px;
+    font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 600; line-height: 1.5;
+  }
+  .bab-tip::before { content: '💡 '; }
+  .bab-header-color-1 { background: linear-gradient(135deg, rgba(29,111,66,0.5), rgba(13,79,47,0.4)); }
+  .bab-header-color-2 { background: linear-gradient(135deg, rgba(24,90,189,0.5), rgba(13,58,122,0.4)); }
+  .bab-header-color-3 { background: linear-gradient(135deg, rgba(125,60,152,0.5), rgba(74,35,90,0.4)); }
+  .bab-header-color-4 { background: linear-gradient(135deg, rgba(192,57,43,0.5), rgba(123,36,28,0.4)); }
+
+  .btn-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+  .btn {
+    padding: 14px 32px; border-radius: 50px; font-size: 16px;
+    font-weight: 800; cursor: pointer; border: none;
+    transition: all 0.2s; text-decoration: none; font-family: 'Nunito', sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .btn:hover { transform: translateY(-3px); }
+  .btn:active { transform: translateY(0); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #21A156, #1D6F42);
+    color: white;
+    box-shadow: 0 6px 24px rgba(29,111,66,0.5);
+  }
+  .btn-primary:hover { box-shadow: 0 10px 32px rgba(29,111,66,0.6); }
+
+  .btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: white; border: 2px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(10px);
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+
+  .btn-outline {
+    background: transparent; color: var(--green-light);
+    border: 2px solid var(--green-light);
+  }
+  .btn-outline:hover { background: var(--green-light); color: white; }
+
+  .btn-sm {
+    padding: 8px 20px; font-size: 13px; border-radius: 30px;
+  }
+
+  /* ─── ARAHAN MODAL ─── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: white; border-radius: 24px;
+    max-width: 600px; width: 100%; max-height: 85vh;
+    overflow-y: auto; padding: 32px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+    animation: modalIn 0.3s ease;
+  }
+  @keyframes modalIn {
+    from { transform: scale(0.9) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .modal-box h2 { font-size: 22px; font-weight: 900; color: var(--green); margin-bottom: 20px; }
+  .arahan-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--green-pale); border-radius: 12px; padding: 14px; margin-bottom: 10px;
+  }
+  .arahan-num {
+    background: var(--green); color: white;
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px; flex-shrink: 0;
+  }
+  .arahan-item p { font-size: 14px; color: var(--dark); font-weight: 600; }
+  .game-types {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0;
+  }
+  .game-type-card {
+    background: var(--blue-pale); border-radius: 12px; padding: 12px;
+    text-align: center; border: 2px solid rgba(30,86,189,0.15);
+  }
+  .game-type-card .icon { font-size: 24px; margin-bottom: 4px; }
+  .game-type-card h4 { font-size: 13px; font-weight: 800; color: var(--blue); }
+  .game-type-card p { font-size: 11px; color: var(--gray); margin-top: 2px; }
+
+  /* ─── GAME SCREEN ─── */
+  #gameScreen { min-height: 100vh; padding: 16px; }
+  #gameScreen.active { display: block; }
+
+  .top-bar {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.06); backdrop-filter: blur(12px);
+    border-radius: 16px; padding: 12px 16px; margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .score-pill {
+    background: linear-gradient(135deg, #21A156, #1D6F42);
+    color: white; padding: 6px 16px; border-radius: 20px;
+    font-weight: 800; font-size: 14px; white-space: nowrap;
+  }
+  .progress-wrap {
+    flex: 1; background: rgba(255,255,255,0.1); border-radius: 10px; height: 10px;
+  }
+  .progress-bar {
+    background: linear-gradient(90deg, #21A156, #FFC300);
+    height: 100%; border-radius: 10px; transition: width 0.4s ease;
+  }
+  .btn-back {
+    background: rgba(255,255,255,0.1); color: white;
+    border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px;
+    border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+    font-family: 'Nunito', sans-serif; transition: all 0.2s; white-space: nowrap;
+  }
+  .btn-back:hover { background: rgba(255,255,255,0.2); }
+
+  /* ─── GAME SELECTOR ─── */
+  #gameSelectorView { animation: fadeIn 0.4s ease; }
+  .section-title {
+    color: white; font-size: 22px; font-weight: 900;
+    margin-bottom: 6px; text-align: center;
+  }
+  .section-sub { color: rgba(255,255,255,0.6); font-size: 14px; text-align: center; margin-bottom: 24px; }
+
+  .game-cards-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px; max-width: 900px; margin: 0 auto;
+  }
+  .game-card {
+    border-radius: 20px; padding: 24px; cursor: pointer;
+    transition: all 0.25s; position: relative; overflow: hidden;
+    border: 2px solid transparent;
+  }
+  .game-card:hover { transform: translateY(-6px); border-color: rgba(255,255,255,0.3); }
+  .game-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    pointer-events: none;
+  }
+  .gc-match { background: linear-gradient(135deg, #1D6F42, #0D4F2F); box-shadow: 0 8px 32px rgba(29,111,66,0.4); }
+  .gc-formula { background: linear-gradient(135deg, #185ABD, #0D3A7A); box-shadow: 0 8px 32px rgba(24,90,189,0.4); }
+  .gc-error { background: linear-gradient(135deg, #C0392B, #7B241C); box-shadow: 0 8px 32px rgba(192,57,43,0.4); }
+  .gc-quiz { background: linear-gradient(135deg, #7D3C98, #4A235A); box-shadow: 0 8px 32px rgba(125,60,152,0.4); }
+  .game-card .gc-icon { font-size: 40px; margin-bottom: 12px; }
+  .game-card h3 { font-size: 18px; font-weight: 900; color: white; margin-bottom: 4px; }
+  .game-card p { font-size: 13px; color: rgba(255,255,255,0.75); font-weight: 600; }
+  .gc-badge {
+    position: absolute; top: 14px; right: 14px;
+    background: rgba(255,255,255,0.2); color: white;
+    font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 10px;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  .gc-stars { display: flex; gap: 2px; margin-top: 10px; }
+  .gc-star { font-size: 14px; color: rgba(255,255,255,0.3); }
+  .gc-star.earned { color: #FFC300; }
+
+  /* ─── GAME VIEWS ─── */
+  .game-view { display: none; animation: fadeIn 0.35s ease; }
+  .game-view.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .game-header {
+    text-align: center; margin-bottom: 24px;
+  }
+  .game-title-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 30px; padding: 8px 20px; margin-bottom: 10px;
+  }
+  .game-title-badge span { color: white; font-size: 14px; font-weight: 800; }
+  .game-desc { color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 600; }
+  .q-counter {
+    color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 4px;
+  }
+
+  /* ─── MATCH GAME ─── */
+  .match-arena {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px; max-width: 800px; margin: 0 auto;
+  }
+  @media (max-width: 600px) { .match-arena { grid-template-columns: 1fr; } }
+
+  .match-column h4 {
+    color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 12px; text-align: center;
+  }
+  .category-box {
+    background: rgba(255,255,255,0.07); border: 2px dashed rgba(255,255,255,0.2);
+    border-radius: 16px; padding: 14px; min-height: 80px;
+    transition: all 0.2s; margin-bottom: 12px;
+  }
+  .category-box.drop-over { border-color: #FFC300; background: rgba(255,195,0,0.1); }
+  .category-box.correct { border-color: #21A156; border-style: solid; background: rgba(33,161,86,0.1); }
+  .category-box.wrong { border-color: #E74C3C; border-style: solid; background: rgba(231,76,60,0.1); }
+  .cat-label {
+    font-size: 14px; font-weight: 800; color: white; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cat-icon { font-size: 20px; }
+  .dropped-card {
+    background: rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 12px;
+    font-size: 12px; color: white; font-weight: 600; margin-top: 6px;
+  }
+
+  .card-deck { display: flex; flex-direction: column; gap: 10px; }
+  .drag-card {
+    background: white; border-radius: 12px; padding: 12px 14px;
+    cursor: grab; transition: all 0.2s;
+    box-shadow: var(--shadow-card);
+    border: 2px solid transparent;
+    user-select: none;
+  }
+  .drag-card:hover { transform: translateX(-4px) scale(1.02); box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-color: var(--blue-light); }
+  .drag-card.dragging { opacity: 0.5; cursor: grabbing; transform: rotate(3deg) scale(1.05); }
+  .drag-card.placed { opacity: 0.4; pointer-events: none; }
+  .drag-card .card-title { font-size: 13px; font-weight: 800; color: var(--dark); }
+  .drag-card .card-sub { font-size: 11px; color: var(--gray); margin-top: 2px; font-family: 'Space Grotesk', monospace; }
+
+  /* ─── FORMULA GAME ─── */
+  .formula-case {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 24px; max-width: 640px; margin: 0 auto 24px;
+    text-align: center;
+  }
+  .case-icon { font-size: 48px; margin-bottom: 12px; }
+  .case-title { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .case-text {
+    font-size: 18px; font-weight: 800; color: white; line-height: 1.4;
+  }
+  .case-table {
+    background: rgba(0,0,0,0.2); border-radius: 12px; padding: 12px;
+    margin-top: 14px; display: inline-block; text-align: left;
+  }
+  .case-table table { border-collapse: collapse; }
+  .case-table td {
+    padding: 4px 12px; font-size: 12px; color: rgba(255,255,255,0.8);
+    font-family: 'Space Grotesk', monospace; border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .case-table td:first-child { color: rgba(255,255,255,0.4); font-weight: 700; }
+
+  .formula-options {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    max-width: 640px; margin: 0 auto;
+  }
+  @media (max-width: 480px) { .formula-options { grid-template-columns: 1fr; } }
+
+  .formula-option {
+    background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 14px; padding: 16px; cursor: pointer;
+    transition: all 0.2s; text-align: center;
+    font-family: 'Space Grotesk', monospace;
+  }
+  .formula-option:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); transform: translateY(-2px); }
+  .formula-option.correct { background: rgba(33,161,86,0.2); border-color: #21A156; }
+  .formula-option.wrong { background: rgba(231,76,60,0.2); border-color: #E74C3C; }
+  .formula-option.disabled { pointer-events: none; }
+  .fo-formula { font-size: 15px; font-weight: 700; color: #4FC3F7; margin-bottom: 4px; }
+  .fo-desc { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 600; font-family: 'Nunito', sans-serif; }
+
+  /* ─── ERROR DETECTION ─── */
+  .error-formula-box {
+    background: #1A1A2E; border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 20px 24px;
+    max-width: 620px; margin: 0 auto 20px; text-align: center;
+  }
+  .error-label { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .error-formula {
+    font-family: 'Space Grotesk', monospace;
+    font-size: clamp(16px, 4vw, 22px); font-weight: 700; color: #4FC3F7;
+    background: rgba(0,0,0,0.3); padding: 12px 20px; border-radius: 10px;
+    margin-bottom: 12px; word-break: break-all;
+  }
+  .error-context { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 600; }
+
+  .error-options {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    max-width: 620px; margin: 0 auto;
+  }
+  @media (max-width: 480px) { .error-options { grid-template-columns: 1fr; } }
+
+  .error-option {
+    background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.12);
+    border-radius: 12px; padding: 14px; cursor: pointer; transition: all 0.2s;
+  }
+  .error-option:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+  .error-option.correct { background: rgba(33,161,86,0.2); border-color: #21A156; }
+  .error-option.wrong { background: rgba(231,76,60,0.2); border-color: #E74C3C; }
+  .error-option.disabled { pointer-events: none; }
+  .eo-text { font-size: 13px; font-weight: 700; color: white; margin-bottom: 2px; font-family: 'Space Grotesk', monospace; }
+  .eo-desc { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600; font-family: 'Nunito', sans-serif; }
+
+  /* ─── QUIZ GAME ─── */
+  .quiz-question {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 24px; max-width: 620px; margin: 0 auto 20px;
+    text-align: center;
+  }
+  .quiz-q-text {
+    font-size: clamp(15px, 3vw, 18px); font-weight: 800; color: white; line-height: 1.5;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; max-width: 620px; margin: 0 auto; }
+  .quiz-option {
+    background: rgba(255,255,255,0.07); border: 2px solid rgba(255,255,255,0.12);
+    border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s;
+    text-align: left; display: flex; align-items: center; gap: 12px;
+  }
+  .quiz-option:hover { background: rgba(255,255,255,0.13); transform: translateX(4px); border-color: rgba(255,255,255,0.3); }
+  .quiz-option.correct { background: rgba(33,161,86,0.2); border-color: #21A156; }
+  .quiz-option.wrong { background: rgba(231,76,60,0.2); border-color: #E74C3C; }
+  .quiz-option.disabled { pointer-events: none; }
+  .qo-letter {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); color: white;
+    font-weight: 800; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .qo-text { font-size: 14px; font-weight: 700; color: white; }
+  .qo-formula { font-family: 'Space Grotesk', monospace; font-size: 13px; color: #4FC3F7; margin-top: 2px; }
+
+  /* ─── FEEDBACK TOAST ─── */
+  .feedback-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    padding: 14px 28px; border-radius: 50px; font-size: 15px; font-weight: 800;
+    color: white; z-index: 200; pointer-events: none;
+    display: none; align-items: center; gap: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    animation: toastIn 0.3s ease;
+    white-space: nowrap;
+  }
+  @keyframes toastIn {
+    from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+  }
+  .feedback-toast.show { display: flex; }
+  .feedback-toast.correct { background: linear-gradient(135deg, #21A156, #1D6F42); }
+  .feedback-toast.wrong { background: linear-gradient(135deg, #E74C3C, #C0392B); }
+
+  /* ─── EXPLANATION BOX ─── */
+  .explanation-box {
+    background: rgba(255,195,0,0.1); border: 1px solid rgba(255,195,0,0.3);
+    border-radius: 14px; padding: 14px 18px;
+    max-width: 640px; margin: 16px auto 0;
+    display: none;
+  }
+  .explanation-box.show { display: block; }
+  .expl-title { font-size: 12px; font-weight: 800; color: #FFC300; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .expl-text { font-size: 13px; color: rgba(255,255,255,0.85); font-weight: 600; line-height: 1.6; }
+
+  /* ─── RESULT SCREEN ─── */
+  #resultView { display: none; text-align: center; padding: 20px; }
+  #resultView.show { display: block; animation: fadeIn 0.4s ease; }
+  .result-card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px; padding: 32px; max-width: 460px; margin: 0 auto;
+    backdrop-filter: blur(12px);
+  }
+  .result-emoji { font-size: 64px; margin-bottom: 16px; }
+  .result-title { font-size: 28px; font-weight: 900; color: white; margin-bottom: 8px; }
+  .result-score {
+    font-size: 56px; font-weight: 900;
+    background: linear-gradient(135deg, #21A156, #FFC300);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .result-label { font-size: 15px; color: rgba(255,255,255,0.6); margin-bottom: 24px; }
+  .result-stars { font-size: 36px; margin-bottom: 20px; }
+  .result-breakdown {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px;
+  }
+  .rb-item {
+    background: rgba(255,255,255,0.06); border-radius: 12px; padding: 12px;
+  }
+  .rb-val { font-size: 22px; font-weight: 900; color: white; }
+  .rb-key { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ─── NEXT BTN ─── */
+  .next-btn-wrap { text-align: center; margin-top: 20px; }
+  .btn-next {
+    background: linear-gradient(135deg, #21A156, #1D6F42);
+    color: white; border: none; padding: 14px 36px;
+    border-radius: 50px; font-size: 15px; font-weight: 800;
+    cursor: pointer; font-family: 'Nunito', sans-serif;
+    transition: all 0.2s; box-shadow: 0 6px 24px rgba(29,111,66,0.4);
+    display: none;
+  }
+  .btn-next:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(29,111,66,0.5); }
+  .btn-next.show { display: inline-block; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 480px) {
+    .match-arena { gap: 12px; }
+    .drag-card { padding: 10px 12px; }
+    .formula-options, .error-options { grid-template-columns: 1fr; }
+  }
+
+  .confetti-piece {
+    position: fixed; width: 10px; height: 10px; border-radius: 2px;
+    animation: confettiFall 1.5s ease-in forwards;
+    z-index: 999; pointer-events: none;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<!-- ════════════ START SCREEN ════════════ -->
+<div id="startScreen" class="screen active">
+  <div class="logo-badge">
+    <div class="logo-icon">📊</div>
+    <div class="logo-text">
+      <h1>Excel Quest</h1>
+      <p>Learning Game</p>
+    </div>
+  </div>
+
+  <div class="spreadsheet-preview">
+    <div class="sp-header">
+      <div class="sp-cell-head" style="min-width:24px"></div>
+      <div class="sp-cell-head">A</div>
+      <div class="sp-cell-head">B</div>
+      <div class="sp-cell-head">C</div>
+    </div>
+    <div class="sp-row">
+      <div class="sp-cell-num">1</div>
+      <div class="sp-cell">Nama</div>
+      <div class="sp-cell">Nilai</div>
+      <div class="sp-cell">Status</div>
+    </div>
+    <div class="sp-row">
+      <div class="sp-cell-num">2</div>
+      <div class="sp-cell">Andi</div>
+      <div class="sp-cell">85</div>
+      <div class="sp-cell formula">=IF(B2>75,"Lulus","Tidak")</div>
+    </div>
+    <div class="sp-row">
+      <div class="sp-cell-num">3</div>
+      <div class="sp-cell">Budi</div>
+      <div class="sp-cell">60</div>
+      <div class="sp-cell result">Tidak</div>
+    </div>
+    <div class="sp-row">
+      <div class="sp-cell-num">4</div>
+      <div class="sp-cell result">=SUM(B2:B3)</div>
+      <div class="sp-cell result">145</div>
+      <div class="sp-cell formula">=AVERAGE(B2:B3)</div>
+    </div>
+  </div>
+
+  <h2 class="start-title">Kuasai MS Excel<br>dengan Cara Seru! 🎮</h2>
+  <p class="start-subtitle">Berdasarkan Modul Guru Pembelajar – PPPPTK Matematika</p>
+  <div class="bab-tags">
+    <span class="bab-tag" onclick="showBabModal(1)">📖 Bab 1: Pengenalan</span>
+    <span class="bab-tag" onclick="showBabModal(2)">⚙️ Bab 2: Operasi</span>
+    <span class="bab-tag" onclick="showBabModal(3)">🔢 Bab 3: Formula &amp; Fungsi</span>
+    <span class="bab-tag" onclick="showBabModal(4)">📋 Bab 4: Pengolahan Data</span>
+  </div>
+  <p style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:700;margin-top:-4px;margin-bottom:12px;letter-spacing:1px">👆 KLIK BAB UNTUK BACA MATERI</p>
+
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="showArahan()">📋 Arahan</button>
+    <button class="btn btn-primary" onclick="startGame()">🚀 Mulai Bermain</button>
+  </div>
+</div>
+
+<!-- ════════════ ARAHAN MODAL ════════════ -->
+<div class="modal-overlay" id="arahanModal">
+  <div class="modal-box">
+    <h2>📋 Cara Bermain Excel Quest</h2>
+    <div class="arahan-item"><div class="arahan-num">1</div><p>Pilih salah satu dari 4 mode permainan yang tersedia di layar utama permainan.</p></div>
+    <div class="arahan-item"><div class="arahan-num">2</div><p><strong>Cocokkan Kartu:</strong> Seret (drag) kartu fungsi ke dalam kategori yang sesuai: SUM, AVERAGE, IF, COUNT, atau lainnya.</p></div>
+    <div class="arahan-item"><div class="arahan-num">3</div><p><strong>Pilih Rumus:</strong> Baca kasus yang diberikan, lalu pilih rumus Excel yang paling tepat dari 4 pilihan.</p></div>
+    <div class="arahan-item"><div class="arahan-num">4</div><p><strong>Deteksi Error:</strong> Temukan letak kesalahan penulisan rumus Excel dan pilih koreksi yang benar.</p></div>
+    <div class="arahan-item"><div class="arahan-num">5</div><p><strong>Kuis Kilat:</strong> Jawab pertanyaan seputar konsep dan fungsi MS Excel dari Bab 1–4.</p></div>
+    <div class="game-types">
+      <div class="game-type-card">
+        <div class="icon">🃏</div>
+        <h4>Cocokkan Kartu</h4>
+        <p>Drag & drop fungsi ke kategori</p>
+      </div>
+      <div class="game-type-card">
+        <div class="icon">🎯</div>
+        <h4>Pilih Rumus</h4>
+        <p>Pilih rumus untuk kasus nyata</p>
+      </div>
+      <div class="game-type-card">
+        <div class="icon">🔍</div>
+        <h4>Deteksi Error</h4>
+        <p>Temukan kesalahan rumus</p>
+      </div>
+      <div class="game-type-card">
+        <div class="icon">⚡</div>
+        <h4>Kuis Kilat</h4>
+        <p>Pertanyaan konsep Excel</p>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--gray);font-weight:600;margin-bottom:16px">💡 Setiap jawaban benar memberi +10 poin. Setelah menjawab, baca penjelasan untuk memahami materinya!</p>
+    <button class="btn btn-primary" onclick="closeArahan()">Siap Bermain! 🎮</button>
+  </div>
+</div>
+
+<!-- ════════════ BAB DETAIL MODAL ════════════ -->
+<div class="modal-overlay" id="babModal">
+  <div class="bab-modal-box" id="babModalBox">
+    <div class="bab-modal-header" id="babModalHeader">
+      <div>
+        <h2 id="babModalTitle"></h2>
+        <p id="babModalSub"></p>
+      </div>
+      <button class="bab-close-btn" onclick="closeBabModal()">✕</button>
+    </div>
+    <div class="bab-modal-body" id="babModalBody"></div>
+  </div>
+</div>
+
+<!-- ════════════ GAME SCREEN ════════════ -->
+<div id="gameScreen" class="screen">
+  <div class="top-bar">
+    <button class="btn-back" onclick="backToSelector()">← Menu</button>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="score-pill">⭐ <span id="scoreDisplay">0</span></div>
+  </div>
+
+  <!-- Game Selector -->
+  <div id="gameSelectorView" class="game-view active">
+    <div class="section-title">Pilih Mode Permainan</div>
+    <div class="section-sub">Bab 1–4 Modul MS Excel – PPPPTK Matematika</div>
+    <div class="game-cards-grid">
+      <div class="game-card gc-match" onclick="startMatchGame()">
+        <div class="gc-badge">BAB 2-3</div>
+        <div class="gc-icon">🃏</div>
+        <h3>Cocokkan Kartu</h3>
+        <p>Seret kartu fungsi ke kategori yang tepat (SUM, AVERAGE, IF, COUNT, dll)</p>
+        <div class="gc-stars" id="stars-match">
+          <span class="gc-star" data-i="0">★</span><span class="gc-star" data-i="1">★</span><span class="gc-star" data-i="2">★</span>
+        </div>
+      </div>
+      <div class="game-card gc-formula" onclick="startFormulaGame()">
+        <div class="gc-badge">BAB 3-4</div>
+        <div class="gc-icon">🎯</div>
+        <h3>Pilih Rumus Tepat</h3>
+        <p>Baca kasus pengolahan data, pilih rumus Excel yang paling sesuai</p>
+        <div class="gc-stars" id="stars-formula">
+          <span class="gc-star" data-i="0">★</span><span class="gc-star" data-i="1">★</span><span class="gc-star" data-i="2">★</span>
+        </div>
+      </div>
+      <div class="game-card gc-error" onclick="startErrorGame()">
+        <div class="gc-badge">BAB 3</div>
+        <div class="gc-icon">🔍</div>
+        <h3>Deteksi Error</h3>
+        <p>Temukan kesalahan penulisan rumus Excel (#DIV/0!, #REF!, #VALUE!, dll)</p>
+        <div class="gc-stars" id="stars-error">
+          <span class="gc-star" data-i="0">★</span><span class="gc-star" data-i="1">★</span><span class="gc-star" data-i="2">★</span>
+        </div>
+      </div>
+      <div class="game-card gc-quiz" onclick="startQuizGame()">
+        <div class="gc-badge">BAB 1-4</div>
+        <div class="gc-icon">⚡</div>
+        <h3>Kuis Kilat</h3>
+        <p>Pertanyaan seputar konsep, fungsi, dan operasi dalam MS Excel</p>
+        <div class="gc-stars" id="stars-quiz">
+          <span class="gc-star" data-i="0">★</span><span class="gc-star" data-i="1">★</span><span class="gc-star" data-i="2">★</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Match Game View -->
+  <div id="matchView" class="game-view">
+    <div class="game-header">
+      <div class="game-title-badge"><span>🃏 Cocokkan Kartu</span></div>
+      <p class="game-desc">Seret kartu ke kategori fungsi yang sesuai</p>
+      <p class="q-counter" id="matchProgress">Skor: 0 / 8</p>
+    </div>
+    <div class="match-arena">
+      <div class="match-column">
+        <h4>📦 Kategori Fungsi</h4>
+        <div id="categoriesArea"></div>
+      </div>
+      <div class="match-column">
+        <h4>🃏 Kartu Fungsi</h4>
+        <div class="card-deck" id="cardDeck"></div>
+      </div>
+    </div>
+    <div class="next-btn-wrap">
+      <button class="btn-next" id="matchNextBtn" onclick="finishMatchGame()">Selesai & Lihat Hasil →</button>
+    </div>
+  </div>
+
+  <!-- Formula Game View -->
+  <div id="formulaView" class="game-view">
+    <div class="game-header">
+      <div class="game-title-badge"><span>🎯 Pilih Rumus Tepat</span></div>
+      <p class="game-desc">Pilih rumus Excel yang paling tepat untuk kasus berikut</p>
+      <p class="q-counter" id="formulaCounter">Soal 1 / 8</p>
+    </div>
+    <div class="formula-case">
+      <div class="case-icon" id="formulaCaseIcon">📊</div>
+      <div class="case-title">KASUS</div>
+      <div class="case-text" id="formulaCaseText"></div>
+      <div class="case-table" id="formulaCaseTable"></div>
+    </div>
+    <div class="formula-options" id="formulaOptions"></div>
+    <div class="explanation-box" id="formulaExpl">
+      <div class="expl-title">💡 Penjelasan</div>
+      <div class="expl-text" id="formulaExplText"></div>
+    </div>
+    <div class="next-btn-wrap">
+      <button class="btn-next" id="formulaNextBtn" onclick="nextFormula()">Soal Berikutnya →</button>
+    </div>
+  </div>
+
+  <!-- Error Detection View -->
+  <div id="errorView" class="game-view">
+    <div class="game-header">
+      <div class="game-title-badge"><span>🔍 Deteksi Error</span></div>
+      <p class="game-desc">Temukan kesalahan dalam penulisan rumus Excel</p>
+      <p class="q-counter" id="errorCounter">Soal 1 / 8</p>
+    </div>
+    <div class="error-formula-box">
+      <div class="error-label">Rumus yang ditulis</div>
+      <div class="error-formula" id="errorFormula"></div>
+      <div class="error-context" id="errorContext"></div>
+    </div>
+    <div class="error-options" id="errorOptions"></div>
+    <div class="explanation-box" id="errorExpl">
+      <div class="expl-title">💡 Penjelasan</div>
+      <div class="expl-text" id="errorExplText"></div>
+    </div>
+    <div class="next-btn-wrap">
+      <button class="btn-next" id="errorNextBtn" onclick="nextError()">Soal Berikutnya →</button>
+    </div>
+  </div>
+
+  <!-- Quiz View -->
+  <div id="quizView" class="game-view">
+    <div class="game-header">
+      <div class="game-title-badge"><span>⚡ Kuis Kilat</span></div>
+      <p class="game-desc">Pilih jawaban yang paling tepat</p>
+      <p class="q-counter" id="quizCounter">Soal 1 / 10</p>
+    </div>
+    <div class="quiz-question">
+      <div class="quiz-q-text" id="quizQuestion"></div>
+    </div>
+    <div class="quiz-options" id="quizOptions"></div>
+    <div class="explanation-box" id="quizExpl">
+      <div class="expl-title">💡 Penjelasan</div>
+      <div class="expl-text" id="quizExplText"></div>
+    </div>
+    <div class="next-btn-wrap">
+      <button class="btn-next" id="quizNextBtn" onclick="nextQuiz()">Soal Berikutnya →</button>
+    </div>
+  </div>
+
+  <!-- Result View -->
+  <div id="resultView">
+    <div class="result-card">
+      <div class="result-emoji" id="resultEmoji">🏆</div>
+      <div class="result-title" id="resultTitle">Luar Biasa!</div>
+      <div class="result-score" id="resultScore">0</div>
+      <div class="result-label" id="resultLabel">Poin</div>
+      <div class="result-stars" id="resultStars">★★★</div>
+      <div class="result-breakdown">
+        <div class="rb-item"><div class="rb-val" id="rbCorrect">0</div><div class="rb-key">Benar</div></div>
+        <div class="rb-item"><div class="rb-val" id="rbWrong">0</div><div class="rb-key">Salah</div></div>
+        <div class="rb-item"><div class="rb-val" id="rbTotal">0</div><div class="rb-key">Total Soal</div></div>
+        <div class="rb-item"><div class="rb-val" id="rbAccuracy">0%</div><div class="rb-key">Akurasi</div></div>
+      </div>
+      <div class="btn-group" style="justify-content:center;gap:10px">
+        <button class="btn btn-secondary btn-sm" onclick="showGameSelector()">← Menu</button>
+        <button class="btn btn-primary btn-sm" onclick="replayGame()">🔄 Ulangi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Toast -->
+<div class="feedback-toast" id="feedbackToast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let totalScore = 0;
+let currentGame = '';
+let currentQ = 0;
+let correct = 0;
+let wrong = 0;
+let gameScores = {match:0, formula:0, error:0, quiz:0};
+let gameStars = {match:0, formula:0, error:0, quiz:0};
+
+// ══════════════════════════════════════════════
+// DATA - BAB 1-4
+// ══════════════════════════════════════════════
+
+// MATCH GAME DATA
+const matchCategories = [
+  { id:'sum', label:'SUM', icon:'➕', desc:'Fungsi penjumlahan', color:'#1D6F42' },
+  { id:'average', label:'AVERAGE', icon:'📊', desc:'Fungsi rata-rata', color:'#185ABD' },
+  { id:'if', label:'IF / Logika', icon:'🔀', desc:'Fungsi logika', color:'#C0392B' },
+  { id:'count', label:'COUNT / COUNTIF', icon:'🔢', desc:'Fungsi menghitung data', color:'#7D3C98' },
+];
+
+const matchCards = [
+  { id:'c1', title:'Menjumlahkan nilai siswa A1 hingga A10', sub:'=SUM(A1:A10)', cat:'sum', desc:'Fungsi SUM menjumlahkan semua nilai dalam range' },
+  { id:'c2', title:'Menghitung rata-rata nilai harian', sub:'=AVERAGE(C6:C15)', cat:'average', desc:'Fungsi AVERAGE menghitung rata-rata seluruh data dalam range' },
+  { id:'c3', title:'Memberi nilai "Lulus" jika nilai > 75', sub:'=IF(B2>75,"Lulus","Tidak")', cat:'if', desc:'Fungsi IF menguji kondisi dan memberikan nilai berbeda' },
+  { id:'c4', title:'Menghitung jumlah data angka di kolom B', sub:'=COUNT(B1:B20)', cat:'count', desc:'COUNT menghitung sel yang berisi angka' },
+  { id:'c5', title:'Total nilai ujian tengah dan akhir semester', sub:'=SUM(C8,E8)', cat:'sum', desc:'SUM dapat menjumlahkan sel-sel tertentu' },
+  { id:'c6', title:'Rata-rata nilai T dan H untuk nilai RH', sub:'=AVERAGE(C8:D8)', cat:'average', desc:'AVERAGE menghitung rata-rata dua sel atau lebih' },
+  { id:'c7', title:'Menguji logika AND: nilai > 80 DAN absen < 5', sub:'=IF(AND(F5>80,G5<5),"Ikut","Tidak")', cat:'if', desc:'IF+AND membutuhkan semua kondisi benar' },
+  { id:'c8', title:'Hitung jumlah siswa yang mendapat nilai "A"', sub:'=COUNTIF(J6:J15,"A")', cat:'count', desc:'COUNTIF menghitung data sesuai kriteria tertentu' },
+];
+
+// FORMULA GAME DATA (8 questions)
+const formulaQuestions = [
+  {
+    icon:'🎓', case:'Guru ingin menghitung <strong>total nilai</strong> siswa dari sel C8, D8, dan E8 (nilai T, H, U).',
+    table:'<table><tr><td>C8</td><td>75</td></tr><tr><td>D8</td><td>80</td></tr><tr><td>E8</td><td>85</td></tr></table>',
+    options:[
+      { formula:'=SUM(C8:E8)', desc:'Jumlahkan C8, D8, E8', correct:true },
+      { formula:'=AVERAGE(C8:E8)', desc:'Rata-rata C8, D8, E8', correct:false },
+      { formula:'=COUNT(C8:E8)', desc:'Hitung jumlah data', correct:false },
+      { formula:'=MAX(C8:E8)', desc:'Nilai terbesar', correct:false },
+    ],
+    expl:'=SUM(C8:E8) menjumlahkan semua nilai dalam range C8 hingga E8. SUM adalah fungsi Matematika paling dasar di MS Excel untuk menjumlahkan range data.'
+  },
+  {
+    icon:'📈', case:'Hitung <strong>nilai rata-rata kelas</strong> dari nilai akhir (NA) semua siswa di range F6 hingga F15.',
+    table:'<table><tr><td>F6</td><td>82.8</td></tr><tr><td>F7</td><td>68.5</td></tr><tr><td>...</td><td>...</td></tr><tr><td>F15</td><td>90.0</td></tr></table>',
+    options:[
+      { formula:'=SUM(F6:F15)', desc:'Jumlahkan semua nilai', correct:false },
+      { formula:'=AVERAGE(F6:F15)', desc:'Rata-rata F6 sampai F15', correct:true },
+      { formula:'=COUNT(F6:F15)', desc:'Hitung jumlah data', correct:false },
+      { formula:'=RANK(F6,F6:F15,1)', desc:'Ranking nilai F6', correct:false },
+    ],
+    expl:'=AVERAGE(F6:F15) menghitung rata-rata dari semua nilai dalam range F6:F15. Sel kosong tidak dihitung oleh AVERAGE, namun sel berisi 0 akan tetap dihitung.'
+  },
+  {
+    icon:'✅', case:'Buat rumus untuk menentukan <strong>ketuntasan belajar</strong>: jika NA (di F6) ≥ 75 maka "Tuntas", jika tidak maka "Belum Tuntas".',
+    table:'<table><tr><td>F6</td><td>NA = 82.8</td></tr></table>',
+    options:[
+      { formula:'=IF(F6>=75,"Tuntas","Belum Tuntas")', desc:'Uji kondisi F6 >= 75', correct:true },
+      { formula:'=IF(F6>75,"Tuntas","Belum Tuntas")', desc:'Uji kondisi F6 > 75', correct:false },
+      { formula:'=AND(F6>=75,"Tuntas","Belum Tuntas")', desc:'Gunakan fungsi AND', correct:false },
+      { formula:'=SUM(F6>=75,"Tuntas")', desc:'Gunakan fungsi SUM', correct:false },
+    ],
+    expl:'Rumus =IF(F6>=75,"Tuntas","Belum Tuntas") menggunakan operator >= (lebih besar atau sama dengan). Penulisan teks dalam fungsi IF harus diapit tanda petik ganda ("").'
+  },
+  {
+    icon:'🏆', case:'Tentukan <strong>nilai huruf</strong> dari nilai akhir (NA): A jika >85, B jika >70, C jika >55, D jika tidak ada yang benar.',
+    table:'<table><tr><td>I9</td><td>NA = 78</td></tr></table>',
+    options:[
+      { formula:'=IF(I9>85,"A",IF(I9>70,"B",IF(I9>55,"C","D")))', desc:'IF bertingkat (nested IF)', correct:true },
+      { formula:'=IF(I9>85,"A","B","C","D")', desc:'IF dengan 4 nilai', correct:false },
+      { formula:'=AVERAGE(I9,"A","B","C","D")', desc:'Rata-rata dengan huruf', correct:false },
+      { formula:'=COUNTIF(I9,">85","A")', desc:'Hitung dengan kriteria', correct:false },
+    ],
+    expl:'IF bertingkat (nested IF) digunakan untuk pengujian lebih dari satu kondisi. Rumusnya =IF(Uji1,Nilai1,IF(Uji2,Nilai2,…,NilaiSalah)). Jumlah kurung tutup = jumlah IF.'
+  },
+  {
+    icon:'📉', case:'Cari <strong>nilai minimum</strong> dari nilai akhir (NA) seluruh siswa di range F6:F15.',
+    table:'<table><tr><td>Min NA</td><td>?</td></tr><tr><td>Range</td><td>F6:F15</td></tr></table>',
+    options:[
+      { formula:'=MIN(F6:F15)', desc:'Nilai terkecil dari range', correct:true },
+      { formula:'=MAX(F6:F15)', desc:'Nilai terbesar dari range', correct:false },
+      { formula:'=SMALL(F6:F15)', desc:'Nilai kecil (perlu argumen)', correct:false },
+      { formula:'=COUNT(F6:F15)', desc:'Hitung jumlah data', correct:false },
+    ],
+    expl:'Fungsi MIN menghasilkan nilai minimum (terkecil) dari suatu range data. Lawannya adalah MAX untuk nilai maksimum. Keduanya tersedia di icon AutoSum pada tab Formulas.'
+  },
+  {
+    icon:'🔢', case:'Hitung <strong>jumlah siswa yang belum tuntas</strong> (bertanda "T") di kolom G, range G6:G15.',
+    table:'<table><tr><td>G6</td><td>"Y"</td></tr><tr><td>G7</td><td>"T"</td></tr><tr><td>...</td><td>...</td></tr></table>',
+    options:[
+      { formula:'=COUNTIF(G6:G15,"T")', desc:'Hitung sel berisi "T"', correct:true },
+      { formula:'=COUNT(G6:G15,"T")', desc:'Hitung semua data', correct:false },
+      { formula:'=SUM(G6:G15,"T")', desc:'Jumlahkan sel "T"', correct:false },
+      { formula:'=IF(G6:G15="T",1,0)', desc:'Uji setiap sel', correct:false },
+    ],
+    expl:'=COUNTIF(range, kriteria) menghitung jumlah sel dalam range yang memenuhi kriteria tertentu. Kriteria teks ditulis dalam tanda petik ganda, misalnya "T" atau "Y".'
+  },
+  {
+    icon:'📊', case:'Rumus Nilai Akhir ditentukan: <strong>NA = (3T + 2H + 5U) / 10</strong>. Sel T=C6, H=D6, U=E6. Tuliskan rumus yang benar.',
+    table:'<table><tr><td>C6 (T)</td><td>70</td></tr><tr><td>D6 (H)</td><td>80</td></tr><tr><td>E6 (U)</td><td>85</td></tr></table>',
+    options:[
+      { formula:'=(3*C6+2*D6+5*E6)/10', desc:'Rumus NA=(3T+2H+5U)/10', correct:true },
+      { formula:'=3*C6+2*D6+5*E6/10', desc:'Tanpa kurung untuk /10', correct:false },
+      { formula:'=(C6+D6+E6)/10', desc:'Tanpa bobot nilai', correct:false },
+      { formula:'=SUM(3*C6,2*D6,5*E6)/10', desc:'Menggunakan SUM', correct:false },
+    ],
+    expl:'Prioritas operasi Excel: kurung () dikerjakan dulu, lalu perkalian/pembagian, baru penjumlahan/pengurangan. Rumus =(3*C6+2*D6+5*E6)/10 memastikan semua perkalian dijumlahkan dulu sebelum dibagi 10.'
+  },
+  {
+    icon:'🔗', case:'Gabungkan teks di sel C1 ("Lahir"), C2 ("di"), C3 ("Magelang") dengan <strong>spasi antar kata</strong>.',
+    table:'<table><tr><td>C1</td><td>"Lahir"</td></tr><tr><td>C2</td><td>"di"</td></tr><tr><td>C3</td><td>"Magelang"</td></tr></table>',
+    options:[
+      { formula:'=C1&" "&C2&" "&C3', desc:'Gabung dengan spasi', correct:true },
+      { formula:'=C1+C2+C3', desc:'Operasi tambah teks', correct:false },
+      { formula:'=SUM(C1,C2,C3)', desc:'SUM untuk teks', correct:false },
+      { formula:'=C1&C2&C3', desc:'Gabung tanpa spasi', correct:false },
+    ],
+    expl:'Operator & (ampersand) digunakan untuk menggabungkan teks di Excel. Spasi ditambahkan dengan " " (spasi di antara tanda petik ganda). Menggunakan + untuk teks akan menghasilkan error #VALUE!'
+  }
+];
+
+// ERROR DETECTION DATA (8 questions)
+const errorQuestions = [
+  {
+    formula:'=SUM(A1:A5',
+    context:'Menghitung total nilai 5 siswa di range A1 hingga A5',
+    options:[
+      { text:'Kurang tanda kurung tutup )', desc:'Seharusnya =SUM(A1:A5)', correct:true },
+      { text:'Range A1:A5 salah', desc:'Range sudah benar', correct:false },
+      { text:'Nama fungsi SUM salah', desc:'SUM adalah fungsi valid', correct:false },
+      { text:'Tanda = di awal salah', desc:'Semua rumus diawali =', correct:false },
+    ],
+    expl:'Setiap fungsi Excel harus memiliki kurung buka "(" dan kurung tutup ")". Rumus yang benar: =SUM(A1:A5). Tanpa kurung tutup, MS Excel akan menampilkan pesan error.'
+  },
+  {
+    formula:'=AVERAGE(B1:B5 C1:C5)',
+    context:'Menghitung rata-rata dua range berbeda, hasilnya muncul #NULL!',
+    options:[
+      { text:'Spasi antar range seharusnya koma (,)', desc:'=AVERAGE(B1:B5,C1:C5)', correct:true },
+      { text:'Tanda = di awal tidak diperlukan', desc:'Semua rumus diawali =', correct:false },
+      { text:'Nama fungsi AVERAGE salah', desc:'AVERAGE adalah fungsi valid', correct:false },
+      { text:'Range B1:B5 terlalu panjang', desc:'Range sudah benar', correct:false },
+    ],
+    expl:'Error #NULL! terjadi karena ada spasi antara dua range, yang diartikan sebagai operator interseksi. Untuk menyertakan dua range, gunakan koma: =AVERAGE(B1:B5,C1:C5).'
+  },
+  {
+    formula:'=IF(A1>75, Lulus, Tidak)',
+    context:'Memberi keterangan kelulusan siswa berdasarkan nilai di A1',
+    options:[
+      { text:'Teks "Lulus" dan "Tidak" harus diapit tanda petik ganda', desc:'=IF(A1>75,"Lulus","Tidak")', correct:true },
+      { text:'Operator > harus diganti dengan >=', desc:'Logika tergantung kebutuhan', correct:false },
+      { text:'Nama fungsi IF harus huruf kecil', desc:'Excel tidak membedakan huruf besar/kecil', correct:false },
+      { text:'Koma pemisah harus diganti titik koma', desc:'Tergantung pengaturan Excel', correct:false },
+    ],
+    expl:'Teks dalam fungsi IF (dan fungsi Excel lainnya) HARUS diapit tanda petik ganda ("). Tanpanya, Excel akan mengira "Lulus" dan "Tidak" adalah nama sel atau fungsi, lalu muncul error #NAME?'
+  },
+  {
+    formula:'=90/0',
+    context:'Menghitung persentase dengan pembagi yang bernilai 0, muncul error',
+    options:[
+      { text:'Pembagian dengan nol menghasilkan #DIV/0!', desc:'Tidak boleh membagi dengan 0', correct:true },
+      { text:'Angka 90 terlalu besar', desc:'Excel bisa menangani angka besar', correct:false },
+      { text:'Tanda / seharusnya ÷', desc:'Simbol / sudah benar untuk pembagian', correct:false },
+      { text:'Hasilnya benar, tidak ada error', desc:'90/0 selalu menghasilkan error', correct:false },
+    ],
+    expl:'Error #DIV/0! muncul ketika ada formula yang membagi dengan nol (0). Solusinya: gunakan IF untuk mengecek pembagi: =IF(B1=0,0,A1/B1) agar tidak terjadi error.'
+  },
+  {
+    formula:'=COUNTIF(G6:G15,T)',
+    context:'Menghitung jumlah siswa yang belum tuntas dengan kode "T"',
+    options:[
+      { text:'Kriteria teks "T" harus diapit tanda petik ganda', desc:'=COUNTIF(G6:G15,"T")', correct:true },
+      { text:'Range G6:G15 salah', desc:'Range sudah benar', correct:false },
+      { text:'Seharusnya menggunakan COUNT, bukan COUNTIF', desc:'COUNTIF tepat untuk kriteria tertentu', correct:false },
+      { text:'Nama fungsi COUNTIF salah penulisan', desc:'COUNTIF adalah nama yang benar', correct:false },
+    ],
+    expl:'Pada fungsi COUNTIF, kriteria berupa teks HARUS diapit tanda petik ganda: =COUNTIF(G6:G15,"T"). Tanpa petik ganda, Excel mengira T adalah nama sel, bukan teks, sehingga hasilnya salah.'
+  },
+  {
+    formula:'=IF(I9>=85,A,IF(I9>=70,B,IF(I9>=55,C,D)))',
+    context:'Konversi nilai angka ke nilai huruf A/B/C/D',
+    options:[
+      { text:'Nilai huruf A, B, C, D harus diapit tanda petik ganda', desc:'=IF(I9>=85,"A",IF(...))', correct:true },
+      { text:'Jumlah IF terlalu banyak', desc:'IF bertingkat diperbolehkan hingga 30', correct:false },
+      { text:'Operator >= seharusnya >', desc:'Operator tergantung kebutuhan logika', correct:false },
+      { text:'Kurung tutup kurang', desc:'Jumlah kurung sudah sesuai jumlah IF', correct:false },
+    ],
+    expl:'Karakter huruf A, B, C, D dalam Excel dianggap sebagai nama sel jika tidak diapit tanda petik ganda. Penulisan yang benar: "A", "B", "C", "D" – setiap teks harus selalu diapit petik ganda.'
+  },
+  {
+    formula:'=MAX(G1:G5',
+    context:'Mencari nilai maksimum dari range G1 hingga G5',
+    options:[
+      { text:'Kurung tutup di akhir hilang', desc:'Seharusnya =MAX(G1:G5)', correct:true },
+      { text:'Nama fungsi MAX salah', desc:'MAX adalah fungsi yang benar', correct:false },
+      { text:'Range G1:G5 tidak valid', desc:'Range sudah benar', correct:false },
+      { text:'Tanda = tidak diperlukan untuk MAX', desc:'Semua rumus diawali dengan =', correct:false },
+    ],
+    expl:'Sama seperti SUM, fungsi MAX juga memerlukan kurung tutup. Rumus yang benar: =MAX(G1:G5). Aturan ini berlaku untuk semua fungsi di Excel – harus ada kurung buka dan kurung tutup.'
+  },
+  {
+    formula:'=SUM(A1+A2+A3+A4+A5)',
+    context:'Menjumlahkan 5 nilai menggunakan SUM, tapi cara penulisannya kurang efisien',
+    options:[
+      { text:'Lebih efisien menggunakan range: =SUM(A1:A5)', desc:'Range lebih efisien dari operator +', correct:true },
+      { text:'Tanda + seharusnya diganti koma', desc:'=SUM(A1,A2,...) boleh tapi tidak efisien', correct:false },
+      { text:'Rumus ini salah dan akan error', desc:'Rumus ini sebenarnya bisa berjalan', correct:false },
+      { text:'SUM tidak bisa menerima operator +', desc:'SUM bisa, tapi tidak efisien', correct:false },
+    ],
+    expl:'Meskipun =SUM(A1+A2+A3+A4+A5) bisa berjalan, cara yang lebih efisien dan dianjurkan adalah menggunakan range: =SUM(A1:A5). Penggunaan range lebih praktis terutama untuk data yang banyak.'
+  }
+];
+
+// QUIZ DATA (10 questions, Bab 1-4)
+const quizQuestions = [
+  {
+    q:'Apa yang dimaksud dengan Custom List dalam MS Excel? (Bab 4)',
+    opts:[
+      { t:'Daftar data yang disimpan dan dapat dipanggil kembali secara otomatis', f:'', correct:true },
+      { t:'Daftar warna untuk conditional formatting', f:'', correct:false },
+      { t:'Kumpulan rumus matematika yang sering digunakan', f:'', correct:false },
+      { t:'Fitur untuk membuat grafik otomatis', f:'', correct:false },
+    ],
+    expl:'Custom List (Bab 4) adalah fasilitas di MS Excel yang menyimpan daftar data. Misalnya, dengan mengetik "Sunday" lalu menarik kotak kecil, nama hari lainnya akan muncul otomatis karena tersimpan dalam Custom List.'
+  },
+  {
+    q:'Operator apa yang digunakan MS Excel untuk menggabungkan dua teks? (Bab 3)',
+    opts:[
+      { t:'+', f:'Operator penambahan', correct:false },
+      { t:'& (ampersand)', f:'Operator teks', correct:true },
+      { t:'* (asterisk)', f:'Operator perkalian', correct:false },
+      { t:'# (hash)', f:'Tanda error', correct:false },
+    ],
+    expl:'Operator & (ampersand) digunakan untuk menggabungkan teks di Excel. Contoh: =C1&" "&C2 menghasilkan "Lahir di". Jika menggunakan +, akan muncul error #VALUE! karena + hanya untuk angka.'
+  },
+  {
+    q:'Apa pesan error yang muncul ketika formula membagi suatu angka dengan nol? (Bab 3)',
+    opts:[
+      { t:'#REF!', f:'Referensi tidak valid', correct:false },
+      { t:'#VALUE!', f:'Tipe data salah', correct:false },
+      { t:'#DIV/0!', f:'Pembagian dengan nol', correct:true },
+      { t:'#NAME?', f:'Nama fungsi tidak dikenal', correct:false },
+    ],
+    expl:'#DIV/0! adalah pesan error ketika ada pembagian dengan nol dalam formula. Error #REF! muncul jika referensi sel tidak ada, #VALUE! jika tipe data salah, #NAME? jika nama fungsi tidak dikenal.'
+  },
+  {
+    q:'Fungsi apa yang digunakan untuk menghitung jumlah sel dalam range yang berisi data angka? (Bab 3)',
+    opts:[
+      { t:'=COUNTA(range)', f:'Menghitung semua data non-kosong', correct:false },
+      { t:'=COUNT(range)', f:'Menghitung sel berisi angka', correct:true },
+      { t:'=SUM(range)', f:'Menjumlahkan semua nilai', correct:false },
+      { t:'=COUNTBLANK(range)', f:'Menghitung sel kosong', correct:false },
+    ],
+    expl:'COUNT menghitung sel berisi angka, tanggal, atau teks yang mewakili angka. COUNTA menghitung semua data non-kosong (termasuk teks). COUNTBLANK menghitung sel kosong. COUNTIF menghitung dengan kriteria tertentu.'
+  },
+  {
+    q:'Dalam MS Excel, data apa saja yang dapat dimasukkan ke dalam sel? (Bab 2)',
+    opts:[
+      { t:'Hanya data angka dan teks', f:'', correct:false },
+      { t:'Data teks, angka, alfanumerik, dan formula/rumus', f:'', correct:true },
+      { t:'Hanya data angka', f:'', correct:false },
+      { t:'Data teks dan formula saja', f:'', correct:false },
+    ],
+    expl:'Bab 2 menjelaskan 4 jenis data di Excel: (1) Data teks/label (A-Z dan karakter khusus), (2) Data numerik/angka, (3) Alfanumerik (angka yang tidak dihitung, misal nomor HP), (4) Formula/rumus.'
+  },
+  {
+    q:'Apa perbedaan utama fungsi logika AND dan OR dalam Excel? (Bab 2)',
+    opts:[
+      { t:'AND dan OR menghasilkan hasil yang sama', f:'', correct:false },
+      { t:'AND: semua kondisi harus benar; OR: cukup satu kondisi benar', f:'', correct:true },
+      { t:'AND untuk teks, OR untuk angka', f:'', correct:false },
+      { t:'OR: semua kondisi harus benar; AND: cukup satu', f:'Ini terbalik', correct:false },
+    ],
+    expl:'AND menghasilkan TRUE hanya jika SEMUA kondisi benar. OR menghasilkan TRUE jika SALAH SATU saja kondisi benar. Contoh: IF(AND(nilai>80,absen<5),"Ikut","Tidak") – keduanya harus terpenuhi.'
+  },
+  {
+    q:'Bagaimana cara memulai penulisan rumus/formula di MS Excel? (Bab 1 & 3)',
+    opts:[
+      { t:'Dengan mengetikkan tanda pagar (#)', f:'', correct:false },
+      { t:'Dengan mengetikkan tanda sama dengan (=)', f:'', correct:true },
+      { t:'Dengan mengetikkan tanda tambah (+)', f:'', correct:false },
+      { t:'Dengan mengetikkan huruf f diikuti titik dua', f:'', correct:false },
+    ],
+    expl:'Setiap formula di Excel HARUS dimulai dengan tanda sama dengan (=). Tanpa tanda =, Excel akan menganggap apa yang kita tulis sebagai teks biasa, bukan formula yang perlu dihitung.'
+  },
+  {
+    q:'Apa fungsi Sortir (Sort) dalam pengolahan data Excel? (Bab 4)',
+    opts:[
+      { t:'Menghapus data yang duplikat', f:'', correct:false },
+      { t:'Mengurutkan data secara Ascending atau Descending', f:'', correct:true },
+      { t:'Menyaring data berdasarkan kriteria tertentu', f:'', correct:false },
+      { t:'Menghitung jumlah data dalam tabel', f:'', correct:false },
+    ],
+    expl:'Sortir (Sort) di Bab 4 digunakan untuk mengurutkan data. Ascending: teks A→Z, angka kecil→besar. Descending: teks Z→A, angka besar→kecil. Filter berbeda – digunakan untuk menyaring/menampilkan data tertentu saja.'
+  },
+  {
+    q:'Apa yang dimaksud dengan Nested Function (Fungsi Berganda) dalam Excel? (Bab 3)',
+    opts:[
+      { t:'Fungsi yang hanya bisa digunakan dalam IF', f:'', correct:false },
+      { t:'Argumen suatu fungsi berupa hasil dari fungsi lain', f:'', correct:true },
+      { t:'Fungsi yang memerlukan dua range sebagai argumen', f:'', correct:false },
+      { t:'Fungsi yang diletakkan di dua sel berbeda', f:'', correct:false },
+    ],
+    expl:'Nested Function adalah fungsi berganda di mana argumen dari satu fungsi merupakan hasil fungsi lain. Contoh: =SQRT(ABS(-9)) – ABS(-9) menghasilkan 9, lalu SQRT(9)=3. Maksimal 7 fungsi berganda dalam satu formula.'
+  },
+  {
+    q:'Fungsi RANK di Excel digunakan untuk apa? (Bab 3)',
+    opts:[
+      { t:'Mengurutkan data secara otomatis', f:'', correct:false },
+      { t:'Menghasilkan peringkat/ranking dari suatu nilai dalam range', f:'', correct:true },
+      { t:'Menghitung jumlah data yang lebih besar dari nilai tertentu', f:'', correct:false },
+      { t:'Mencari nilai ke-n dari yang terbesar', f:'', correct:false },
+    ],
+    expl:'=RANK(bilangan, range, order) menghasilkan ranking dari suatu nilai dalam range data. Order=0 untuk Descending (nilai terbesar ranknya 1), Order=1 untuk Ascending. LARGE digunakan untuk mencari nilai ke-n terbesar.'
+  }
+];
+
+// ══════════════════════════════════════════════
+// PARTICLES
+// ══════════════════════════════════════════════
+(function createParticles(){
+  const c = document.getElementById('particles');
+  const colors = ['#21A156','#185ABD','#FFC300','#E74C3C','#8E44AD','#F39C12'];
+  for(let i=0;i<20;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random()*20+6;
+    p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${Math.random()*15+10}s;animation-delay:${Math.random()*15}s`;
+    c.appendChild(p);
+  }
+})();
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showArahan() {
+  document.getElementById('arahanModal').classList.add('active');
+}
+function closeArahan() {
+  document.getElementById('arahanModal').classList.remove('active');
+}
+document.getElementById('arahanModal').addEventListener('click', function(e){
+  if(e.target===this) closeArahan();
+});
+
+function startGame() {
+  showScreen('gameScreen');
+  showGameSelector();
+}
+
+function showGameSelector() {
+  document.querySelectorAll('.game-view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('gameSelectorView').classList.add('active');
+  document.getElementById('resultView').style.display='none';
+  updateStarDisplay();
+}
+
+function backToSelector() {
+  if(currentGame) {
+    if(!confirm('Kembali ke menu? Progres permainan ini akan hilang.')) return;
+  }
+  currentGame = '';
+  showGameSelector();
+}
+
+function showView(id) {
+  document.querySelectorAll('.game-view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('resultView').style.display='none';
+}
+
+// ══════════════════════════════════════════════
+// SCORE & PROGRESS
+// ══════════════════════════════════════════════
+function updateScore(add) {
+  totalScore += add;
+  document.getElementById('scoreDisplay').textContent = totalScore;
+}
+
+function setProgress(val) {
+  document.getElementById('progressBar').style.width = val + '%';
+}
+
+function showFeedback(correct, text) {
+  const t = document.getElementById('feedbackToast');
+  t.className = 'feedback-toast show ' + (correct ? 'correct' : 'wrong');
+  t.innerHTML = (correct ? '✅ ' : '❌ ') + text;
+  setTimeout(()=>{ t.classList.remove('show'); }, 2000);
+}
+
+// ══════════════════════════════════════════════
+// MATCH GAME
+// ══════════════════════════════════════════════
+let matchAnswers = {};
+let matchDragging = null;
+
+function startMatchGame() {
+  currentGame = 'match';
+  correct = 0; wrong = 0;
+  matchAnswers = {};
+  showView('matchView');
+  renderMatchGame();
+}
+
+function renderMatchGame() {
+  // Render categories
+  const catArea = document.getElementById('categoriesArea');
+  catArea.innerHTML = '';
+  matchCategories.forEach(cat => {
+    const box = document.createElement('div');
+    box.className = 'category-box';
+    box.id = 'cat-' + cat.id;
+    box.dataset.cat = cat.id;
+    box.innerHTML = `<div class="cat-label"><span class="cat-icon">${cat.icon}</span>${cat.label}<br><small style="font-size:11px;opacity:0.7;font-weight:600">${cat.desc}</small></div>`;
+    box.addEventListener('dragover', e=>{ e.preventDefault(); box.classList.add('drop-over'); });
+    box.addEventListener('dragleave', ()=>box.classList.remove('drop-over'));
+    box.addEventListener('drop', e=>{ e.preventDefault(); handleDrop(e, cat.id); box.classList.remove('drop-over'); });
+    // Touch
+    box.addEventListener('touchend', e=>{ e.preventDefault(); handleTouchDrop(cat.id); }, {passive:false});
+    catArea.appendChild(box);
+  });
+
+  // Shuffle and render cards
+  const shuffled = [...matchCards].sort(()=>Math.random()-0.5);
+  const deck = document.getElementById('cardDeck');
+  deck.innerHTML = '';
+  shuffled.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'drag-card';
+    el.id = 'card-' + card.id;
+    el.draggable = true;
+    el.dataset.cardId = card.id;
+    el.dataset.correctCat = card.cat;
+    el.innerHTML = `<div class="card-title">${card.title}</div><div class="card-sub">${card.sub}</div>`;
+    el.addEventListener('dragstart', e=>{ matchDragging = card; el.classList.add('dragging'); });
+    el.addEventListener('dragend', ()=>el.classList.remove('dragging'));
+    el.addEventListener('touchstart', e=>{ matchDragging = card; }, {passive:true});
+    deck.appendChild(el);
+  });
+
+  updateMatchProgress();
+}
+
+function handleDrop(e, catId) {
+  if(!matchDragging) return;
+  placeCard(matchDragging, catId);
+  matchDragging = null;
+}
+
+function handleTouchDrop(catId) {
+  if(!matchDragging) return;
+  placeCard(matchDragging, catId);
+  matchDragging = null;
+}
+
+function placeCard(card, catId) {
+  const catBox = document.getElementById('cat-' + catId);
+  const cardEl = document.getElementById('card-' + card.id);
+  const isCorrect = card.cat === catId;
+
+  cardEl.classList.add('placed');
+
+  const dropped = document.createElement('div');
+  dropped.className = 'dropped-card';
+  dropped.innerHTML = `${isCorrect ? '✅' : '❌'} ${card.title}`;
+  catBox.appendChild(dropped);
+
+  if(isCorrect) {
+    catBox.classList.add('correct');
+    correct++;
+    updateScore(10);
+    showFeedback(true, 'Tepat! +10 poin');
+  } else {
+    catBox.classList.add('wrong');
+    wrong++;
+    showFeedback(false, 'Kurang tepat! ' + card.title + ' → ' + card.cat.toUpperCase());
+  }
+
+  matchAnswers[card.id] = catId;
+  updateMatchProgress();
+
+  if(Object.keys(matchAnswers).length === matchCards.length) {
+    document.getElementById('matchNextBtn').classList.add('show');
+  }
+}
+
+function updateMatchProgress() {
+  const done = Object.keys(matchAnswers).length;
+  document.getElementById('matchProgress').textContent = `Ditempatkan: ${done} / ${matchCards.length} kartu`;
+  setProgress((done / matchCards.length) * 100);
+}
+
+function finishMatchGame() {
+  saveGameResult('match');
+  showResult(correct, wrong, matchCards.length, 'match');
+}
+
+// ══════════════════════════════════════════════
+// FORMULA GAME
+// ══════════════════════════════════════════════
+let formulaIdx = 0;
+let formulaAnswered = false;
+
+function startFormulaGame() {
+  currentGame = 'formula';
+  formulaIdx = 0; correct = 0; wrong = 0;
+  showView('formulaView');
+  renderFormula();
+}
+
+function renderFormula() {
+  const q = formulaQuestions[formulaIdx];
+  formulaAnswered = false;
+
+  document.getElementById('formulaCounter').textContent = `Soal ${formulaIdx+1} / ${formulaQuestions.length}`;
+  document.getElementById('formulaCaseIcon').textContent = q.icon;
+  document.getElementById('formulaCaseText').innerHTML = q.case;
+  document.getElementById('formulaCaseTable').innerHTML = q.table ? q.table : '';
+  document.getElementById('formulaCaseTable').style.display = q.table ? 'inline-block' : 'none';
+  document.getElementById('formulaExpl').classList.remove('show');
+  document.getElementById('formulaNextBtn').classList.remove('show');
+
+  setProgress(((formulaIdx) / formulaQuestions.length) * 100);
+
+  const opts = document.getElementById('formulaOptions');
+  opts.innerHTML = '';
+  const shuffled = [...q.options].sort(()=>Math.random()-0.5);
+  shuffled.forEach(opt => {
+    const el = document.createElement('div');
+    el.className = 'formula-option';
+    el.innerHTML = `<div class="fo-formula">${opt.formula}</div><div class="fo-desc">${opt.desc}</div>`;
+    el.addEventListener('click', ()=>{
+      if(formulaAnswered) return;
+      formulaAnswered = true;
+      opts.querySelectorAll('.formula-option').forEach(o=>o.classList.add('disabled'));
+      if(opt.correct) {
+        el.classList.add('correct');
+        correct++;
+        updateScore(10);
+        showFeedback(true, 'Benar! +10 poin');
+      } else {
+        el.classList.add('wrong');
+        wrong++;
+        showFeedback(false, 'Kurang tepat!');
+        opts.querySelectorAll('.formula-option').forEach(o=>{ if(o.querySelector('.fo-formula').textContent === q.options.find(x=>x.correct).formula) o.classList.add('correct'); });
+      }
+      document.getElementById('formulaExplText').textContent = q.expl;
+      document.getElementById('formulaExpl').classList.add('show');
+      if(formulaIdx < formulaQuestions.length-1) {
+        document.getElementById('formulaNextBtn').textContent = 'Soal Berikutnya →';
+      } else {
+        document.getElementById('formulaNextBtn').textContent = 'Lihat Hasil →';
+      }
+      document.getElementById('formulaNextBtn').classList.add('show');
+    });
+    opts.appendChild(el);
+  });
+}
+
+function nextFormula() {
+  formulaIdx++;
+  if(formulaIdx >= formulaQuestions.length) {
+    saveGameResult('formula');
+    showResult(correct, wrong, formulaQuestions.length, 'formula');
+  } else {
+    renderFormula();
+  }
+}
+
+// ══════════════════════════════════════════════
+// ERROR GAME
+// ══════════════════════════════════════════════
+let errorIdx = 0;
+let errorAnswered = false;
+
+function startErrorGame() {
+  currentGame = 'error';
+  errorIdx = 0; correct = 0; wrong = 0;
+  showView('errorView');
+  renderError();
+}
+
+function renderError() {
+  const q = errorQuestions[errorIdx];
+  errorAnswered = false;
+
+  document.getElementById('errorCounter').textContent = `Soal ${errorIdx+1} / ${errorQuestions.length}`;
+  document.getElementById('errorFormula').textContent = q.formula;
+  document.getElementById('errorContext').textContent = q.context;
+  document.getElementById('errorExpl').classList.remove('show');
+  document.getElementById('errorNextBtn').classList.remove('show');
+
+  setProgress(((errorIdx) / errorQuestions.length) * 100);
+
+  const opts = document.getElementById('errorOptions');
+  opts.innerHTML = '';
+  const shuffled = [...q.options].sort(()=>Math.random()-0.5);
+  shuffled.forEach(opt => {
+    const el = document.createElement('div');
+    el.className = 'error-option';
+    el.innerHTML = `<div class="eo-text">${opt.text}</div><div class="eo-desc">${opt.desc}</div>`;
+    el.addEventListener('click', ()=>{
+      if(errorAnswered) return;
+      errorAnswered = true;
+      opts.querySelectorAll('.error-option').forEach(o=>o.classList.add('disabled'));
+      if(opt.correct) {
+        el.classList.add('correct');
+        correct++;
+        updateScore(10);
+        showFeedback(true, 'Tepat! +10 poin');
+      } else {
+        el.classList.add('wrong');
+        wrong++;
+        showFeedback(false, 'Kurang tepat!');
+        opts.querySelectorAll('.error-option').forEach(o=>{ if(q.options.find(x=>x.correct)?.text===o.querySelector('.eo-text').textContent) o.classList.add('correct'); });
+      }
+      document.getElementById('errorExplText').textContent = q.expl;
+      document.getElementById('errorExpl').classList.add('show');
+      if(errorIdx < errorQuestions.length-1) {
+        document.getElementById('errorNextBtn').textContent = 'Soal Berikutnya →';
+      } else {
+        document.getElementById('errorNextBtn').textContent = 'Lihat Hasil →';
+      }
+      document.getElementById('errorNextBtn').classList.add('show');
+    });
+    opts.appendChild(el);
+  });
+}
+
+function nextError() {
+  errorIdx++;
+  if(errorIdx >= errorQuestions.length) {
+    saveGameResult('error');
+    showResult(correct, wrong, errorQuestions.length, 'error');
+  } else {
+    renderError();
+  }
+}
+
+// ══════════════════════════════════════════════
+// QUIZ GAME
+// ══════════════════════════════════════════════
+let quizIdx = 0;
+let quizAnswered = false;
+const letters = ['A','B','C','D'];
+
+function startQuizGame() {
+  currentGame = 'quiz';
+  quizIdx = 0; correct = 0; wrong = 0;
+  showView('quizView');
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const q = quizQuestions[quizIdx];
+  quizAnswered = false;
+
+  document.getElementById('quizCounter').textContent = `Soal ${quizIdx+1} / ${quizQuestions.length}`;
+  document.getElementById('quizQuestion').textContent = q.q;
+  document.getElementById('quizExpl').classList.remove('show');
+  document.getElementById('quizNextBtn').classList.remove('show');
+
+  setProgress(((quizIdx) / quizQuestions.length) * 100);
+
+  const opts = document.getElementById('quizOptions');
+  opts.innerHTML = '';
+  const shuffled = [...q.opts].map((o,i)=>({...o,origIdx:i})).sort(()=>Math.random()-0.5);
+  shuffled.forEach((opt, idx) => {
+    const el = document.createElement('div');
+    el.className = 'quiz-option';
+    el.innerHTML = `<div class="qo-letter">${letters[idx]}</div><div><div class="qo-text">${opt.t}</div>${opt.f?`<div class="qo-formula">${opt.f}</div>`:''}</div>`;
+    el.addEventListener('click', ()=>{
+      if(quizAnswered) return;
+      quizAnswered = true;
+      opts.querySelectorAll('.quiz-option').forEach(o=>o.classList.add('disabled'));
+      if(opt.correct) {
+        el.classList.add('correct');
+        correct++;
+        updateScore(10);
+        showFeedback(true, 'Benar! +10 poin');
+      } else {
+        el.classList.add('wrong');
+        wrong++;
+        showFeedback(false, 'Kurang tepat!');
+        opts.querySelectorAll('.quiz-option').forEach(o=>{
+          const txt = o.querySelector('.qo-text').textContent;
+          if(q.opts.find(x=>x.correct)?.t===txt) o.classList.add('correct');
+        });
+      }
+      document.getElementById('quizExplText').textContent = q.expl;
+      document.getElementById('quizExpl').classList.add('show');
+      if(quizIdx < quizQuestions.length-1) {
+        document.getElementById('quizNextBtn').textContent = 'Soal Berikutnya →';
+      } else {
+        document.getElementById('quizNextBtn').textContent = 'Lihat Hasil →';
+      }
+      document.getElementById('quizNextBtn').classList.add('show');
+    });
+    opts.appendChild(el);
+  });
+}
+
+function nextQuiz() {
+  quizIdx++;
+  if(quizIdx >= quizQuestions.length) {
+    saveGameResult('quiz');
+    showResult(correct, wrong, quizQuestions.length, 'quiz');
+  } else {
+    renderQuiz();
+  }
+}
+
+// ══════════════════════════════════════════════
+// RESULT
+// ══════════════════════════════════════════════
+function saveGameResult(game) {
+  const total = correct + wrong;
+  const pct = total > 0 ? (correct/total) : 0;
+  const stars = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : pct >= 0.3 ? 1 : 0;
+  gameStars[game] = Math.max(gameStars[game], stars);
+  gameScores[game] = Math.max(gameScores[game]||0, correct*10);
+}
+
+function showResult(c, w, total, game) {
+  document.querySelectorAll('.game-view').forEach(v=>v.classList.remove('active'));
+  const rv = document.getElementById('resultView');
+  rv.style.display = 'block';
+
+  const pct = total > 0 ? Math.round((c/total)*100) : 0;
+  const stars = pct >= 90 ? 3 : pct >= 60 ? 2 : pct >= 30 ? 1 : 0;
+
+  const msgs = [
+    ['😔','Coba Lagi!','Pelajari lagi materi Bab 1-4 ya!'],
+    ['😊','Bagus!','Terus berlatih untuk hasil lebih baik!'],
+    ['🌟','Hebat!','Kamu memahami MS Excel dengan baik!'],
+    ['🏆','Luar Biasa!','Kamu menguasai MS Excel dengan sempurna!']
+  ];
+  const [emoji, title, label] = msgs[stars];
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = c * 10;
+  document.getElementById('resultLabel').textContent = label;
+  document.getElementById('resultStars').textContent = '★'.repeat(stars) + '☆'.repeat(3-stars);
+  document.getElementById('rbCorrect').textContent = c;
+  document.getElementById('rbWrong').textContent = w;
+  document.getElementById('rbTotal').textContent = total;
+  document.getElementById('rbAccuracy').textContent = pct + '%';
+
+  setProgress(100);
+
+  if(stars >= 2) spawnConfetti();
+  updateStarDisplay();
+}
+
+function replayGame() {
+  switch(currentGame) {
+    case 'match': startMatchGame(); break;
+    case 'formula': startFormulaGame(); break;
+    case 'error': startErrorGame(); break;
+    case 'quiz': startQuizGame(); break;
+  }
+}
+
+function updateStarDisplay() {
+  ['match','formula','error','quiz'].forEach(game => {
+    const stars = gameStars[game] || 0;
+    const els = document.querySelectorAll(`#stars-${game} .gc-star`);
+    els.forEach((el,i) => {
+      el.classList.toggle('earned', i < stars);
+    });
+  });
+}
+
+// ══════════════════════════════════════════════
+// BAB MODAL DATA & FUNCTIONS
+// ══════════════════════════════════════════════
+const babData = {
+  1: {
+    title: '📖 Bab 1 – Pengenalan MS Excel',
+    sub: 'Kegiatan Pembelajaran 1 | Modul PPPPTK Matematika',
+    headerClass: 'bab-header-color-1',
+    sections: [
+      {
+        title: 'Apa itu MS Excel?',
+        points: [
+          { icon:'📊', text:'MS Excel adalah program aplikasi <strong>pengolah lembar kerja (spreadsheet)</strong> yang sangat populer digunakan hingga saat ini.' },
+          { icon:'🧮', text:'Excel banyak digunakan untuk <strong>perhitungan matematika, pengolahan data, pembuatan grafik</strong>, dan analisis data.' },
+          { icon:'📁', text:'Lembar kerja Excel terdiri dari <strong>baris (row)</strong> dan <strong>kolom (column)</strong> yang membentuk sel (cell).' },
+        ]
+      },
+      {
+        title: 'Mengenal Antarmuka Excel',
+        points: [
+          { icon:'🎀', text:'<strong>Ribbon</strong>: Kumpulan menu dan ikon perintah yang terletak di bagian atas jendela Excel, terdiri dari tab-tab seperti Home, Insert, Formulas, Data, dll.' },
+          { icon:'📝', text:'<strong>Formula Bar</strong>: Baris di bawah Ribbon yang menampilkan isi sel aktif — bisa berupa teks, angka, atau rumus.' },
+          { icon:'🔲', text:'<strong>Sel (Cell)</strong>: Kotak persegi panjang hasil perpotongan baris dan kolom. Alamat sel dituliskan seperti A1, B3, C10, dst.' },
+          { icon:'📄', text:'<strong>Sheet</strong>: Lembar kerja dalam satu file Excel. Satu file bisa memiliki banyak sheet (Sheet1, Sheet2, dst.).' },
+        ]
+      },
+      {
+        title: 'Memasukkan Data & Rumus Dasar',
+        points: [
+          { icon:'⌨️', text:'Klik sel yang diinginkan, lalu ketikkan data. Tekan <strong>Enter</strong> untuk pindah ke bawah, <strong>Tab</strong> untuk pindah ke kanan.' },
+          { icon:'🔣', text:'Semua <strong>rumus/formula</strong> di Excel selalu diawali dengan tanda sama dengan: <strong>=</strong>' },
+          { icon:'📋', text:'Contoh: mengetik <strong>=78+60</strong> di sel, lalu Enter → sel menampilkan hasil 138.' },
+          { icon:'📌', text:'Referensi sel: rumus bisa mengacu ke sel lain. Contoh: <strong>=C3+C4</strong> menjumlahkan nilai di sel C3 dan C4.' },
+        ]
+      },
+      {
+        title: 'Contoh Rumus Sederhana',
+        formulas: [
+          { formula:'=78+60', desc:'Perhitungan langsung dengan angka' },
+          { formula:'=C3+C4', desc:'Penjumlahan dua sel' },
+          { formula:'=C8*D8', desc:'Perkalian dua sel' },
+          { formula:'=(2*C8+3*D8+5*E8)/10', desc:'Rumus nilai akhir dengan bobot' },
+        ]
+      },
+      {
+        title: 'Tips Belajar',
+        tip: 'Nama Nilai Akhir (NA) sering dihitung dengan bobot: NA = (2T + 3H + 5U)/10, di mana T=Ujian Tengah, H=Nilai Harian, U=Ujian Akhir. Kurung ( ) sangat penting agar pembagian dilakukan setelah semua perkalian dijumlahkan!'
+      }
+    ]
+  },
+  2: {
+    title: '⚙️ Bab 2 – Operasi-Operasi dalam MS Excel',
+    sub: 'Kegiatan Pembelajaran 2 | Modul PPPPTK Matematika',
+    headerClass: 'bab-header-color-2',
+    sections: [
+      {
+        title: 'Jenis-Jenis Data di Excel',
+        points: [
+          { icon:'🔤', text:'<strong>Data Teks/Label</strong>: berisi alfabet A–Z dan karakter khusus (~@#$). Tidak bisa dihitung secara matematis.' },
+          { icon:'🔢', text:'<strong>Data Numerik</strong>: angka yang bisa dilakukan operasi hitung (tambah, kurang, kali, bagi).' },
+          { icon:'🆎', text:'<strong>Alfanumerik</strong>: angka yang TIDAK dihitung, misal nomor HP, nomor KTP, kode pos.' },
+          { icon:'🧮', text:'<strong>Formula/Rumus</strong>: berisi ekspresi matematika, referensi sel, dan fungsi-fungsi Excel.' },
+        ]
+      },
+      {
+        title: 'Kelompok Operasi di Excel',
+        points: [
+          { icon:'💰', text:'<strong>Operasi Finansial</strong>: analisis investasi, bunga pinjaman, cicilan, arus kas.' },
+          { icon:'📅', text:'<strong>Operasi Tanggal & Waktu</strong>: perhitungan hari, bulan, tahun, jam, hari kerja.' },
+          { icon:'📈', text:'<strong>Operasi Statistika</strong>: rata-rata (AVERAGE), median, standar deviasi, MAX, MIN.' },
+          { icon:'🔍', text:'<strong>Operasi Referensi & Lookup</strong>: mengolah data berdasarkan kriteria di tabel (VLOOKUP, HLOOKUP).' },
+          { icon:'🔀', text:'<strong>Operasi Logika</strong>: pengujian kondisi IF, AND, OR yang menghasilkan TRUE atau FALSE.' },
+          { icon:'✍️', text:'<strong>Operasi Teks</strong>: memanipulasi data teks (LEFT, RIGHT, MID, UPPER, LOWER).' },
+        ]
+      },
+      {
+        title: 'Fungsi Logika IF, AND, OR',
+        points: [
+          { icon:'🔀', text:'<strong>IF</strong>: =IF(kondisi, nilai_jika_benar, nilai_jika_salah). Digunakan untuk pengujian kondisi.' },
+          { icon:'✅', text:'<strong>AND</strong>: menghasilkan TRUE hanya jika <strong>semua kondisi</strong> bernilai benar.' },
+          { icon:'⭕', text:'<strong>OR</strong>: menghasilkan TRUE jika <strong>salah satu saja</strong> kondisi bernilai benar.' },
+        ]
+      },
+      {
+        title: 'Contoh Rumus Logika',
+        formulas: [
+          { formula:'=IF(B2>75,"Lulus","Tidak")', desc:'Jika B2>75 → "Lulus", selainnya → "Tidak"' },
+          { formula:'=IF(I9>=85,"A",IF(I9>=70,"B","C"))', desc:'IF bertingkat: konversi nilai angka ke huruf' },
+          { formula:'=IF(AND(F5>80,G5<5),"Ikut","Tidak")', desc:'AND: kedua syarat harus terpenuhi' },
+          { formula:'=IF(OR(F4>80,G4>80),"Ikut","Tidak")', desc:'OR: cukup satu syarat terpenuhi' },
+        ]
+      },
+      {
+        title: 'Tips Belajar',
+        tip: 'Jumlah kurung tutup pada IF bertingkat harus sama dengan jumlah fungsi IF yang digunakan. Contoh: 3 IF = 3 kurung tutup di akhir. Teks dalam rumus selalu diapit tanda petik ganda: "Lulus", "A", "Tuntas", dll.'
+      }
+    ]
+  },
+  3: {
+    title: '🔢 Bab 3 – Formula & Fungsi dalam MS Excel',
+    sub: 'Kegiatan Pembelajaran 3 | Modul PPPPTK Matematika',
+    headerClass: 'bab-header-color-3',
+    sections: [
+      {
+        title: 'Formula (Rumus)',
+        points: [
+          { icon:'📐', text:'<strong>Formula</strong> adalah ekspresi di Excel untuk melakukan perhitungan, memanipulasi data, atau menguji kondisi. Selalu diawali tanda <strong>=</strong>.' },
+          { icon:'🧩', text:'Elemen formula: nilai angka langsung, operator hitung, referensi sel, nama fungsi, nama range.' },
+          { icon:'⚡', text:'<strong>Prioritas operasi</strong>: (1) Tanda kurung () (2) Perpangkatan ^ (3) Kali/Bagi */: (4) Tambah/Kurang +/-' },
+          { icon:'🔗', text:'Operator <strong>&</strong> digunakan untuk menggabungkan teks. Contoh: =C1&" "&C2 → "Lahir di"' },
+        ]
+      },
+      {
+        title: 'Fungsi Matematika Penting',
+        formulas: [
+          { formula:'=SUM(A1:A10)', desc:'Jumlahkan semua nilai di range A1 hingga A10' },
+          { formula:'=ROUND(3.567, 2)', desc:'Bulatkan ke 2 desimal → 3.57' },
+          { formula:'=MOD(17, 2)', desc:'Sisa bagi 17÷2 → 1' },
+          { formula:'=ABS(-34)', desc:'Nilai mutlak → 34' },
+          { formula:'=INT(7.9)', desc:'Bulatkan ke bawah → 7' },
+        ]
+      },
+      {
+        title: 'Fungsi Statistika Penting',
+        formulas: [
+          { formula:'=AVERAGE(C1:C10)', desc:'Rata-rata nilai dalam range' },
+          { formula:'=MAX(G1:G5)', desc:'Nilai terbesar dalam range' },
+          { formula:'=MIN(G1:G5)', desc:'Nilai terkecil dalam range' },
+          { formula:'=COUNT(B1:B20)', desc:'Hitung sel yang berisi angka' },
+          { formula:'=COUNTA(B1:B20)', desc:'Hitung semua sel tidak kosong' },
+          { formula:'=COUNTIF(G6:G15,"T")', desc:'Hitung sel yang berisi "T"' },
+          { formula:'=RANK(C2,C1:C5,0)', desc:'Ranking descending nilai C2' },
+          { formula:'=LARGE(E2:E7,2)', desc:'Nilai terbesar ke-2 dalam range' },
+        ]
+      },
+      {
+        title: 'Fungsi Teks Penting',
+        formulas: [
+          { formula:'=LEFT(C1, 3)', desc:'Ambil 3 karakter dari kiri' },
+          { formula:'=RIGHT(C1, 3)', desc:'Ambil 3 karakter dari kanan' },
+          { formula:'=MID(C1, 2, 3)', desc:'Ambil 3 karakter mulai posisi ke-2' },
+          { formula:'=UPPER(C1)', desc:'Ubah semua teks menjadi HURUF KAPITAL' },
+          { formula:'=LOWER(C1)', desc:'Ubah semua teks menjadi huruf kecil' },
+        ]
+      },
+      {
+        title: 'Pesan Error yang Umum',
+        errors: [
+          { code:'#DIV/0!', desc:'Pembagian dengan angka nol (0)' },
+          { code:'#N/A', desc:'Ada argumen yang tidak dituliskan' },
+          { code:'#NAME?', desc:'Nama fungsi atau teks tidak dikenal oleh Excel' },
+          { code:'#NULL!', desc:'Range salah — ada spasi antar range yang seharusnya koma' },
+          { code:'#REF!', desc:'Referensi sel sebagai argumen tidak ditemukan/tidak ada' },
+          { code:'#VALUE!', desc:'Tipe data tidak sesuai (misal, angka diharapkan tapi yang masuk teks)' },
+        ]
+      },
+      {
+        title: 'Tips Belajar',
+        tip: 'Nested Function (fungsi berganda) adalah fungsi yang argumennya merupakan fungsi lain. Contoh: =SQRT(ABS(-16)). Maksimal 7 fungsi berganda dalam satu formula. Function Wizard (Formulas → Insert Function) membantu menemukan dan menggunakan lebih dari 400 fungsi Excel.'
+      }
+    ]
+  },
+  4: {
+    title: '📋 Bab 4 – Custom List & Pengolahan Data',
+    sub: 'Kegiatan Pembelajaran 4 | Modul PPPPTK Matematika',
+    headerClass: 'bab-header-color-4',
+    sections: [
+      {
+        title: 'Custom List',
+        points: [
+          { icon:'📝', text:'<strong>Custom List</strong> adalah fasilitas Excel yang menyimpan daftar data. Cukup ketik satu item, lalu tarik kotak kecil (fill handle), maka data lainnya akan muncul otomatis.' },
+          { icon:'📅', text:'Excel sudah memiliki Custom List bawaan: nama hari (Sunday, Monday…) dan nama bulan (January, February…) dalam bahasa Inggris.' },
+          { icon:'🏫', text:'Kita bisa membuat Custom List sendiri, misalnya daftar nama siswa satu kelas, lewat menu <strong>File → Options → Advanced → Edit Custom Lists</strong>.' },
+        ]
+      },
+      {
+        title: 'Mengolah Nilai Siswa',
+        formulas: [
+          { formula:'=AVERAGE(C6:C15)', desc:'Nilai rata-rata kelas untuk kolom C' },
+          { formula:'=MAX(C6:C15)', desc:'Nilai maksimum dalam range C6:C15' },
+          { formula:'=MIN(C6:C15)', desc:'Nilai minimum dalam range C6:C15' },
+          { formula:'=(3*C6+2*D6+5*E6)/10', desc:'NA dengan bobot T=3, H=2, U=5' },
+          { formula:'=IF(F6>=75,"Tuntas","Belum")', desc:'Ketuntasan belajar berdasar NA' },
+          { formula:'=COUNTIF(G6:G15,"Y")', desc:'Hitung jumlah siswa yang tuntas' },
+        ]
+      },
+      {
+        title: 'Mengurutkan & Menyaring Data',
+        points: [
+          { icon:'🔼', text:'<strong>Sort (Sortir)</strong>: Mengurutkan data. Ascending = A→Z / kecil→besar. Descending = Z→A / besar→kecil. Caranya: blok data → tab Data → Sort.' },
+          { icon:'🔽', text:'<strong>Filter</strong>: Menyaring data — hanya menampilkan baris yang memenuhi kriteria tertentu. Caranya: blok data → tab Data → Filter → klik tanda panah di header kolom.' },
+          { icon:'🎨', text:'<strong>Conditional Formatting</strong>: Memberi warna/format khusus pada sel yang memenuhi kondisi tertentu. Contoh: sel dengan nilai < 75 otomatis berwarna merah.' },
+        ]
+      },
+      {
+        title: 'Menggabungkan Data Antar Sheet',
+        points: [
+          { icon:'📂', text:'Data dari beberapa sheet bisa digabungkan ke satu sheet "Rekap" dengan cara merujuk sel antar sheet.' },
+          { icon:'🔗', text:'Format referensi antar sheet: <strong>=NamaSheet!AlamatSel</strong>. Contoh: =10IPA1!B6 mengambil nilai dari sel B6 di sheet bernama 10IPA1.' },
+          { icon:'📊', text:'Setelah satu baris terisi, gunakan <strong>fill handle</strong> (kotak kecil pojok kanan bawah sel) untuk mengisi baris-baris berikutnya secara otomatis.' },
+        ]
+      },
+      {
+        title: 'Tips Belajar',
+        tip: 'Untuk menghitung jumlah siswa tuntas/tidak tuntas, gunakan COUNTIF. Contoh: =COUNTIF(G6:G15,"Y") untuk menghitung berapa sel berisi "Y". Jangan lupa teks dalam kriteria COUNTIF harus diapit tanda petik ganda ("")!'
+      }
+    ]
+  }
+};
+
+function showBabModal(bab) {
+  const data = babData[bab];
+  if(!data) return;
+
+  document.getElementById('babModalTitle').textContent = data.title;
+  document.getElementById('babModalSub').textContent = data.sub;
+
+  const header = document.getElementById('babModalHeader');
+  header.className = 'bab-modal-header ' + data.headerClass;
+
+  const body = document.getElementById('babModalBody');
+  body.innerHTML = '';
+
+  data.sections.forEach(sec => {
+    const div = document.createElement('div');
+    div.className = 'bab-section';
+
+    let html = `<div class="bab-section-title">${sec.title}</div>`;
+
+    if(sec.points) {
+      sec.points.forEach(p => {
+        html += `<div class="bab-point"><span class="bab-point-icon">${p.icon}</span><div class="bab-point-text">${p.text}</div></div>`;
+      });
+    }
+    if(sec.formulas) {
+      sec.formulas.forEach(f => {
+        html += `<div class="bab-formula-row"><span class="formula">${f.formula}</span><span class="fdesc">${f.desc}</span></div>`;
+      });
+    }
+    if(sec.errors) {
+      sec.errors.forEach(e => {
+        html += `<div class="bab-error-row"><span class="err-code">${e.code}</span><span class="err-desc">${e.desc}</span></div>`;
+      });
+    }
+    if(sec.tip) {
+      html += `<div class="bab-tip">${sec.tip}</div>`;
+    }
+
+    div.innerHTML = html;
+    body.appendChild(div);
+  });
+
+  document.getElementById('babModal').classList.add('active');
+}
+
+function closeBabModal() {
+  document.getElementById('babModal').classList.remove('active');
+}
+
+document.getElementById('babModal').addEventListener('click', function(e){
+  if(e.target === this) closeBabModal();
+});
+function spawnConfetti() {
+  const colors = ['#21A156','#185ABD','#FFC300','#E74C3C','#8E44AD','#F39C12','#FFFFFF'];
+  for(let i=0;i<40;i++){
+    const c = document.createElement('div');
+    c.className='confetti-piece';
+    c.style.cssText=`left:${Math.random()*100}vw;top:-20px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*0.8}s;animation-duration:${Math.random()*0.8+1}s;transform:rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),2000);
+  }
+}
+</script>
+</body>
+</html>
